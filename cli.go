@@ -40,7 +40,7 @@ func addSecret(app, env, name string) {
     panic("No Secret Added!")
   }
 
-  secretsExist, secretPath := CheckForSecretsFile(env)
+  secretsExist, secretPath := CheckForSecretsFile(env, true)
 
   if(!secretsExist) {
     //Create
@@ -60,7 +60,7 @@ func RemoveSecrets(name, app, env string) {
   CheckApp(app)
   fmt.Println("env", env)
   //Check for secrets file 
-  secretsExist, secretPath := CheckForSecretsFile(env)
+  secretsExist, secretPath := CheckForSecretsFile(env, false)
 
   if(secretsExist) {
     //Decrypt and parse secrets
@@ -76,12 +76,15 @@ func ListSecrets(app, env string) {
   CheckEnv(env)
   CheckApp(app)
 
-  secretsExist, secretPath := CheckForSecretsFile(env)
+  secretsExist, secretPath := CheckForSecretsFile(env, false)
 
   if(secretsExist) {
     encryptedSecrets := ReadFile(secretPath)
     result := Decrypt(GetKMSSession(), app, env, encryptedSecrets)
     fmt.Println(string(result))
+  } else {
+    fmt.Println("No secrets found for app / env")
+    os.Exit(1)
   }
 }
 
@@ -159,6 +162,7 @@ func main() {
         fmt.Println("Add to encrypted file")
         fmt.Println("Env", env)
         addSecret(appName, env, c.Args().Get(0))
+        fmt.Println("File written")
         return nil
       },
     },
@@ -168,8 +172,9 @@ func main() {
       Usage: "Remove from encrypted file for Environment",
       ArgsUsage: "[name]",
       Action: func(c *cli.Context) error {
-        fmt.Println("Remove from encrypted file")
+        fmt.Println("Remove secret")
         RemoveSecrets(c.Args().Get(0), appName, env)
+        fmt.Println("Secret Removed")
         return nil
       },
     },

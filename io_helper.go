@@ -15,13 +15,19 @@ func Exists(path string) (bool, error) {
 }
 
 //Returns true or false if secrets file exists
-func CheckForSecretsFile(env string) (bool, string) {
+func CheckForSecretsFile(env string, mkdir bool) (bool, string) {
 
   dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
   if err != nil {
     panic(err)
   }
-  dir += "/secrets/" + env
+  dir += "/secrets"
+
+  if(mkdir) {
+    os.MkdirAll(dir, os.ModePerm) //Ensure dir exists
+  }
+
+  dir += "/" + env
 
   secretsExist, err := Exists(dir)
   return secretsExist, dir
@@ -29,7 +35,6 @@ func CheckForSecretsFile(env string) (bool, string) {
 
 //TODO: Filemode
 func WriteFile(path string, contents []byte) {
-  //os.MkdirAll(dir, os.ModePerm) //Ensure dir exists
 
   err := ioutil.WriteFile(path, contents, 0644)
 
