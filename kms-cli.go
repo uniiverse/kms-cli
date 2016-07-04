@@ -31,6 +31,8 @@ func addSecret(app, env, name string) {
   CheckEnv(env)
   CheckName(name)
 
+  CheckAndAddKey(app, env)
+
   fmt.Println("Adding secret called:", name)
 
   //prompt for secret value
@@ -102,6 +104,24 @@ func ParseEncryptWrite(input interface{}, app, env, path string) {
   encryptedPayload := Encrypt(session, app, env, newJson)
   WriteFile(path,encryptedPayload)
 
+}
+
+func CheckAndAddKey(app, env string) {
+  session := GetKMSSession()
+  aliases := ListAliases(session)
+  aliasExists := AliasExists(GetAliasName(app, env), aliases)
+
+  if(!aliasExists) {
+    createKey := BoolQuestion("Master Key doesn't exist, create?")
+
+    if(createKey) {
+      CreateKeyWithAlias(session, app, env)
+      fmt.Println("Key Created")
+    } else {
+      fmt.Println("Could not save secret without key")
+      os.Exit(1)
+    }
+  }
 }
 
 func UnmarshalSecrets(input []byte) map[string]interface{} {
