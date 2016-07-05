@@ -1,4 +1,14 @@
-#KMS Wrapper
+#KMS CLI
+
+##About
+KMS uses AWS Key Management Service (KMS) to encrypt JSON containing application secrets. 
+IAM roles can be used to restrict access to Customer Master Keys (CMK)
+
+IAM role is determined via:
+
+- AWS cli tools (`~.aws/credentials`) (local dev machine)
+- Introspected via the AWS EC2 instance
+- Service Role (ECS)
 
 ##Installation
 **GO**
@@ -18,7 +28,7 @@ ADD https://github.com/uniiverse/kmscli/releases/download/v0.1/kmscli_linux_amd6
 RUN gzip -d /tmp/kmscli.gz && mv /tmp/kmscli /usr/bin && chmod +x /usr/bin/kmscli
 ```
 
-Note: When running container locally, must mount in user's `.aws` folder read only (`ro`)
+Note: When running container locally (ie. docker compose), must mount in user's `.aws` folder read only (`ro`)
 
 ```
 Volume Syntax
@@ -28,13 +38,25 @@ Volume Syntax
 ##Usage
 
 ```
-kms -h for help
+kmscli -h for help
 ```
 
 ###Adding secrets
 
 ```
 kmscli --app appname --env env add secretName
+```
+
+###Listing secrets
+
+```
+kmscli --app appname --env env list
+```
+
+###Removing secrets
+
+```
+kmscli --app appname --env env remove secretName
 ```
 
 ##Ruby Gem
