@@ -23,6 +23,7 @@ Note: The following assumes alpine linux, running as root
 
 ```
 Dockerfile
+RUN apk --update upgrade && apk add ca-certificates && rm -rf /var/cache/apk/*
 ADD https://github.com/uniiverse/kmscli/releases/download/v0.1/kmscli_linux_amd64.gz /tmp
 
 RUN gzip -d /tmp/kmscli.gz && mv /tmp/kmscli /usr/bin && chmod +x /usr/bin/kmscli
