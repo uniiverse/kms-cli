@@ -5,6 +5,7 @@ import (
   "github.com/urfave/cli"
   "fmt"
   "encoding/json"
+  "bytes"
 )
 
 func CheckApp(app string) {
@@ -123,6 +124,16 @@ func CheckAndAddKey(app, env string) {
     }
   }
 }
+func JSONMarshal(v interface{}, unescape bool) ([]byte, error) {
+    b, err := json.Marshal(v)
+
+    if unescape {
+        b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
+        b = bytes.Replace(b, []byte("\\u003e"), []byte(">"), -1)
+        b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
+    }
+    return b, err
+}
 
 func UnmarshalSecrets(input []byte) map[string]interface{} {
   var dat map[string]interface{}
@@ -136,7 +147,7 @@ func UnmarshalSecrets(input []byte) map[string]interface{} {
 }
 
 func MarshalSecrets(input interface{}) []byte {
-  data, err := json.Marshal(input)
+  data, err := JSONMarshal(input, true)
 
   if(err != nil) {
     panic(err)
